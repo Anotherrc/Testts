@@ -1,0 +1,30 @@
+frontend/
+├── public/                  # Archivos estáticos (favicon.ico, robots.txt, imágenes estáticas)
+├── src/
+│   ├── api/                 # Configuración del cliente HTTP (Axios/Fetch) e interceptores
+│   ├── assets/              # Archivos procesados por Vite (imágenes, fuentes, estilos globales)
+│   ├── components/          # Componentes UI reutilizables a nivel global
+│   │   ├── layout/          # Estructuras de página (Navbar, Sidebar, Footer)
+│   │   └── ui/              # Componentes base tontos (Button, Input, Modal, Spinner)
+│   ├── context/             # Proveedores de estado global simple (ThemeProvider, AuthProvider)
+│   ├── features/            # Módulos específicos del dominio del negocio
+│   │   ├── auth/            # Ejemplo: Lógica completa de autenticación
+│   │   │   ├── api/         # Endpoints de login/registro hacia Django
+│   │   │   ├── components/  # Componentes exclusivos de auth (LoginForm)
+│   │   │   ├── hooks/       # Custom hooks (useAuth, useLogin)
+│   │   │   └── types/       # Interfaces locales (User, LoginCredentials)
+│   │   └── dashboard/       # Ejemplo: Módulo del panel de control
+│   ├── hooks/               # Custom hooks globales genéricos (useClickOutside, useDebounce)
+│   ├── pages/               # Componentes de enrutamiento (Vistas que componen features)
+│   ├── routes/              # Definición de rutas (React Router Dom) y guardias de navegación
+│   ├── store/               # Estado global complejo (Zustand, Redux Toolkit)
+│   ├── types/               # Tipos e interfaces TS globales (Modelos compartidos)
+│   ├── utils/               # Funciones puras (formateo de fechas, validaciones, utilidades)
+│   ├── App.tsx              # Componente principal que envuelve proveedores y rutas
+│   └── main.tsx             # Punto de entrada de React en el DOM
+├── .env                     # Variables de entorno (ej. VITE_API_URL=http://localhost:8000)
+├── .env.production
+├── .eslintrc.cjs            # Configuración de linter
+├── package.json
+├── tsconfig.json            # Configuración de TypeScript
+└── vite.config.ts           # Configuración del empaquetador

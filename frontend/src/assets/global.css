@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #e3000f;
+  --color-ink: #122033;
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  color: #122033;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 85% -10%, rgba(227, 0, 15, 0.06), transparent 30rem),
+    #ffffff;
+}
+
+/* Dashboard visual system: neutral surfaces with red reserved for actions and alerts. */
+.shadow-sm {
+  box-shadow: 0 8px 24px rgba(15, 15, 15, 0.06);
+}
+
+.rounded-2xl, .rounded-3xl {
+  border-color: #e5e7eb;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  background: #111827;
+}
+
+html[data-theme="dark"] body {
+  color: #e5e7eb;
+  background:
+    radial-gradient(circle at 85% -10%, rgba(227, 0, 15, 0.12), transparent 30rem),
+    #111827;
+}
+
+html[data-theme="dark"] .bg-white {
+  background-color: #1f2937 !important;
+}
+
+html[data-theme="dark"] .bg-slate-50 {
+  background-color: #273449 !important;
+}
+
+html[data-theme="dark"] .bg-slate-100 {
+  background-color: #334155 !important;
+}
+
+html[data-theme="dark"] .text-slate-800,
+html[data-theme="dark"] .text-slate-700,
+html[data-theme="dark"] .text-slate-600 {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="dark"] .text-slate-500,
+html[data-theme="dark"] .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .border-slate-200,
+html[data-theme="dark"] .border-slate-300,
+html[data-theme="dark"] .equipment-detail-page .border-slate-100 {
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .equipment-detail-page {
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .equipment-detail-page .text-slate-900,
+html[data-theme="dark"] .equipment-detail-page .text-slate-800,
+html[data-theme="dark"] .equipment-detail-page .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .equipment-detail-page .text-slate-600,
+html[data-theme="dark"] .equipment-detail-page .text-slate-500,
+html[data-theme="dark"] .equipment-detail-page .text-slate-400 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .equipment-detail-page .hover\:border-slate-300:hover {
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  color: #f8fafc;
+  background-color: #1f2937;
+  border-color: #475569;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .hover\:bg-red-50:hover {
+  background-color: rgba(127, 29, 29, 0.4) !important;
+}
+
+html[data-theme="dark"] .shadow-sm,
+html[data-theme="dark"] .shadow-lg,
+html[data-theme="dark"] .shadow-2xl {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+@media print {
+  body { background: white; color: #122033; }
+  header, aside, nav, button, select, input, textarea, .no-print { display: none !important; }
+  main { padding: 0 !important; overflow: visible !important; }
+  main > div { max-width: none !important; }
+  .rounded-3xl, .rounded-2xl, .rounded-xl { border-radius: 0 !important; box-shadow: none !important; }
+  .leaflet-container { height: 500px !important; }
+}

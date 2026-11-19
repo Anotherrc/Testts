@@ -1,0 +1,37 @@
+# *Logs de cambios.*
+
+**log 1**
+en la carpeta de SRC/FEATURES hice una nueva carpeta llamada "equipos" que por dentro tiene otra carpeta llamada "types" que dentro adicionalmente tiene un archivo llamado "index.ts"
+
+lo que hace esa carpeta es seguir las reglas de negocio:
+- Los arriendos con límite de 162 y 176 horas.
+- El tipo de medición (horómetros para maquinaria y kilometraje para camionetas).
+- Los intervalos preventivos (cada 50 hrs o 1.000 km).
+- El estado del GPS Teltonika (operando, detenido o sin señal).
+
+creando una interfaz simple
+
+**log 2**
+ahora en la carpeta de equipos hice un nuevo components (aparte del components que yo ya tenía), dentro de este agregué el archivo llamado "ModalHorometro.tsx"
+
+lo que hace es  visualmente activar la luz verde/roja y la consistencia de ingreso de datos mediante un formulario interactivo, no hace mucho mas aparte de eso visualmente
+
+**log 3**
+ahora dentro de la misma carpeta de equipos/components hice un archivo llamado "EquipoCard.tsx"
+
+lo que hace es leer los datos ingresados y llamar al formulario del archivo "ModalHorometro.tsx" cuando es requerido, para actualizar la alerta visual en tiempo real.
+
+**log 4**
+hice un archivo.bat que ejecuta todo el programa inmediatamente
+
+**log 5**
+agregué un nuevo botón en Sidebar.tsx llamado "Administrar flotas"
+
+**log 6**
+actualicé EquiposPage.tsx donde agregué el nuevo filtro triple con soft-delete para referirnos a una máquina que está fuera de servicio, aparte modifiqué el archivo index.tsx para que el código encuentre el nuevo botón que agregué previamente
+
+**log 7**
+cambié logs de lugar para que sea mas accesible conforme mejoremos el proyecto
+
+**log 8**
+agregué un botón en Sidebar.tssx llamado "Clientes", que en efecto se supone que permite visualizar a los clientes, pero por ahora lo dejé vacío para conectarlo después con back-end

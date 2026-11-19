@@ -1,0 +1,22 @@
+# *Logs de cambios.*
+
+**log 1**
+en la carpeta de SRC/FEATURES hice una nueva carpeta llamada "equipos" que por dentro tiene otra carpeta llamada "types" que dentro adicionalmente tiene un archivo llamado "index.ts"
+
+lo que hace esa carpeta es seguir las reglas de negocio:
+- Los arriendos con límite de 162 y 176 horas.
+- El tipo de medición (horómetros para maquinaria y kilometraje para camionetas).
+- Los intervalos preventivos (cada 50 hrs o 1.000 km).
+- El estado del GPS Teltonika (operando, detenido o sin señal).
+
+creando una interfaz simple
+
+**log 2**
+ahora en la carpeta de equipos hice un nuevo components (aparte del components que yo ya tenía), dentro de este agregué el archivo llamado "ModalHorometro.tsx"
+
+lo que hace es  visualmente activar la luz verde/roja y la consistencia de ingreso de datos mediante un formulario interactivo, no hace mucho mas aparte de eso visualmente
+
+**log 3**
+ahora dentro de la misma carpeta de equipos/components hice un archivo llamado "EquipoCard.tsx"
+
+lo que hace es leer los datos ingresados y llamar al formulario del archivo "ModalHorometro.tsx" cuando es requerido, para actualizar la alerta visual en tiempo real.
