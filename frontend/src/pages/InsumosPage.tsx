@@ -28,7 +28,21 @@ export const InsumosPage: React.FC = () => {
     } catch { setError('No se pudo consultar el inventario de Django.'); }
     finally { setCargando(false); }
   };
-  useEffect(() => { void cargarDatos(); }, []);
+  useEffect(() => {
+    let activo = true;
+    Promise.all([operacionesService.insumos.listar(), operacionesService.insumos.movimientos()])
+      .then(([lista, movimientos]) => {
+        if (!activo) return;
+        setError('');
+        setInsumos(lista);
+        setAuditoria(movimientos.slice(0, 8).map((m: Movimiento) =>
+          `${new Date(m.fecha).toLocaleString('es-CL')} · ${m.usuario_nombre} · ${m.motivo} (${m.insumo_nombre})`
+        ));
+      })
+      .catch(() => { if (activo) setError('No se pudo consultar el inventario del servidor.'); })
+      .finally(() => { if (activo) setCargando(false); });
+    return () => { activo = false; };
+  }, []);
   const abrirAgregar = () => {
     setInsumoEditando(null);
     setForm({ nombre: '', cantidad: '1', unidad: 'unidades', minimo: '1', categoria: 'General' });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { adminService } from '../features/admin/api/adminService';
 import type { Permiso, Rol, UsuarioAdmin } from '../features/admin/api/adminService';
@@ -24,28 +24,32 @@ export const AdminUsuariosPage: React.FC = () => {
     const [filtroUsuario, setFiltroUsuario] = useState('');
     const [filtroRol, setFiltroRol] = useState('TODOS');
 
-    const cargarDatos = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const [rolesData, usuariosData, permisosData] = await Promise.all([
-                adminService.getRoles(),
-                adminService.getUsuarios(),
-                adminService.getPermisos(),
-            ]);
-            setRoles(rolesData);
-            setUsuarios(usuariosData);
-            setPermisos(permisosData);
-        } catch {
-            setError('Error al cargar datos. Verifica que tengas permisos de administrador.');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
-        cargarDatos();
-    }, [cargarDatos]);
+        let activo = true;
+        Promise.all([
+            adminService.getRoles(),
+            adminService.getUsuarios(),
+            adminService.getPermisos(),
+        ])
+            .then(([rolesData, usuariosData, permisosData]) => {
+                if (!activo) return;
+                setError(null);
+                setRoles(rolesData);
+                setUsuarios(usuariosData);
+                setPermisos(permisosData);
+            })
+            .catch(() => {
+                if (activo) {
+                    setError('Error al cargar datos. Verifica que tengas permisos de administrador.');
+                }
+            })
+            .finally(() => {
+                if (activo) setLoading(false);
+            });
+        return () => {
+            activo = false;
+        };
+    }, []);
 
     const handleCrearRol = async (e: React.FormEvent) => {
         e.preventDefault();

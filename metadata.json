@@ -1,0 +1,5 @@
+{
+  "name": "Vilas Motor - Gestión de Flota",
+  "description": "Sistema de gestión de flota, horómetros, mantenciones, insumos, clientes y telemetría GPS.",
+  "requestFramePermissions": []
+}

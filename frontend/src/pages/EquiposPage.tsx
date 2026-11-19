@@ -62,14 +62,14 @@ export const EquiposPage: React.FC = () => {
     const [modalNuevo, setModalNuevo] = useState(false);
     const [nuevoEquipo, setNuevoEquipo] = useState({ codigo: '', nombre: '', categoria: '', subcategoria: '', marca: '', modelo: '', meta_proxima_mant: '', unidad_medida: 'HORAS', limite_contrato_mes: '162', foto_url: '', foto_archivo: null as File | null });
 
-    // Carga inicial de datos desde Django
+    // Carga inicial de datos desde el servidor (incluyendo deshabilitadas para el filtro)
     const cargarEquipos = async () => {
         try {
             setLoading(true);
             setErrorApi(null);
-            const data = await equiposService.getAll();
+            const data = await equiposService.getAll(true);
             setEquipos(data);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error al cargar maquinarias:', err);
             setErrorApi('No se pudo conectar con el servidor de Vilas Motor. Verifica tu conexión o sesión.');
         } finally {
@@ -78,7 +78,25 @@ export const EquiposPage: React.FC = () => {
     };
 
     useEffect(() => {
-        cargarEquipos();
+        let activo = true;
+        equiposService.getAll(true)
+            .then((data) => {
+                if (!activo) return;
+                setErrorApi(null);
+                setEquipos(data);
+            })
+            .catch((err: unknown) => {
+                console.error('Error al cargar maquinarias:', err);
+                if (activo) {
+                    setErrorApi('No se pudo conectar con el servidor de Vilas Motor. Verifica tu conexión o sesión.');
+                }
+            })
+            .finally(() => {
+                if (activo) setLoading(false);
+            });
+        return () => {
+            activo = false;
+        };
     }, []);
 
     const categorias = useMemo(
@@ -140,7 +158,25 @@ export const EquiposPage: React.FC = () => {
         const segundaConfirmacion = window.prompt(`Escribe ${equipo.codigo} para confirmar la baja segura.`);
         if (segundaConfirmacion?.trim().toUpperCase() !== equipo.codigo.toUpperCase()) return;
         await equiposService.darDeBaja(equipo.id);
-        setEquipos((prev) => prev.filter((item) => item.id !== equipo.id));
+        setEquipos((prev) =>
+            prev.map((item) =>
+                item.id === equipo.id
+                    ? {
+                        ...item,
+                        estado: 'Deshabilitada',
+                        is_deleted: true,
+                        color_semaforo: 'GRIS',
+                        estado_alerta: 'INHABILITADO: Fuera de Servicio',
+                    }
+                    : item
+            )
+        );
+    };
+
+    const handleRestaurar = async (equipo: Equipo) => {
+        if (!window.confirm(`¿Restaurar ${equipo.codigo} a estado Disponible?`)) return;
+        const restaurado = await equiposService.restaurar(equipo.id);
+        setEquipos((prev) => prev.map((item) => (item.id === equipo.id ? restaurado : item)));
     };
 
     const handleCrearEquipo = async (event: React.FormEvent) => {
@@ -192,10 +228,22 @@ export const EquiposPage: React.FC = () => {
         setPanelAlerta(null);
     };
 
+    const equiposActivos = useMemo(
+        () => equipos.filter((e) => !e.is_deleted && e.estado !== 'Deshabilitada'),
+        [equipos]
+    );
+
     // Filtrado completo por datos visibles de la maquinaria.
     const equiposProcesados = useMemo(() => {
         return equipos
             .filter((eq) => {
+                const esDeshabilitada = eq.estado === 'Deshabilitada' || Boolean(eq.is_deleted);
+                if (filtroEstado === 'Deshabilitada') {
+                    if (!esDeshabilitada) return false;
+                } else {
+                    if (esDeshabilitada) return false;
+                }
+
                 const texto = [
                     eq.nombre,
                     eq.codigo,
@@ -213,7 +261,7 @@ export const EquiposPage: React.FC = () => {
                 const coincideSubcategoria = !filtroSubcategoria || normalizarSubcategoria(eq.subcategoria) === filtroSubcategoria;
                 const coincideMarca = !filtroMarca || eq.marca === filtroMarca;
                 const coincideModelo = !filtroModelo || eq.modelo === filtroModelo;
-                const coincideEstado = !filtroEstado || eq.estado === filtroEstado;
+                const coincideEstado = !filtroEstado || (filtroEstado === 'Deshabilitada' ? esDeshabilitada : eq.estado === filtroEstado);
                 const coincideGps = !filtroGps || eq.encendido_gps;
                 const coincideAlerta =
                     !filtroAlerta
@@ -234,11 +282,11 @@ export const EquiposPage: React.FC = () => {
         busqueda,
     ]);
 
-    const gpsEncendidos = equipos.filter((e) => e.encendido_gps);
+    const gpsEncendidos = equiposActivos.filter((e) => e.encendido_gps);
     const totalOperando = gpsEncendidos.length;
-    const urgentes = equipos.filter((e) => e.color_semaforo === 'ROJO');
-    const proximos = equipos.filter((e) => e.color_semaforo === 'AMARILLO');
-    const enTaller = equipos.filter((e) => e.estado === 'Mantenimiento');
+    const urgentes = equiposActivos.filter((e) => e.color_semaforo === 'ROJO');
+    const proximos = equiposActivos.filter((e) => e.color_semaforo === 'AMARILLO');
+    const enTaller = equiposActivos.filter((e) => e.estado === 'Mantenimiento');
 
     return (
         <div className="space-y-6">
@@ -259,7 +307,7 @@ export const EquiposPage: React.FC = () => {
                     <Link to="/reportes/maquinarias" className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-slate-700">Informe PDF</Link>
                     <button type="button" onClick={() => setPanelAlerta((actual) => actual === 'GPS' ? null : 'GPS')} className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-center transition hover:bg-emerald-100">
                         <span className="block text-xs font-bold text-emerald-700 uppercase">GPS Encendido</span>
-                        <span className="text-lg font-black text-emerald-900">{totalOperando} / {equipos.length}</span>
+                        <span className="text-lg font-black text-emerald-900">{totalOperando} / {equiposActivos.length}</span>
                     </button>
                     <button type="button" onClick={() => setPanelAlerta((actual) => actual === 'URGENTE' ? null : 'URGENTE')} className="px-4 py-2 bg-red-50 border border-red-200 rounded-xl text-center transition hover:bg-red-100">
                         <span className="block text-xs font-bold text-red-700 uppercase">Urgentes</span>
@@ -402,7 +450,9 @@ export const EquiposPage: React.FC = () => {
             {!loading && !errorApi && (
                 <>
                     <div className="flex items-center justify-between text-xs font-semibold text-slate-500 px-1">
-                        <span>Mostrando {equiposProcesados.length} de {equipos.length} equipos</span>
+                        <span>
+                            Mostrando {equiposProcesados.length} de {filtroEstado === 'Deshabilitada' ? equipos.filter((e) => e.estado === 'Deshabilitada' || e.is_deleted).length : equiposActivos.length} equipos
+                        </span>
                     </div>
 
                     {equiposProcesados.length === 0 ? (
@@ -417,6 +467,7 @@ export const EquiposPage: React.FC = () => {
                                     equipo={equipo}
                                     onActualizarHorometro={puedeEditar ? handleAbrirModal : undefined}
                                     onDarDeBaja={puedeEliminar ? handleDarDeBaja : undefined}
+                                    onRestaurar={puedeEditar ? handleRestaurar : undefined}
                                     onVerDetalle={(equipo) => navigate(`/flotas/${equipo.id}`)}
                                 />
                             ))}

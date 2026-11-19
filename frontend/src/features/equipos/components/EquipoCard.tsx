@@ -7,6 +7,7 @@ interface EquipoCardProps {
     equipo: Equipo;
     onActualizarHorometro?: (equipo: Equipo) => void;
     onDarDeBaja?: (equipo: Equipo) => void;
+    onRestaurar?: (equipo: Equipo) => void;
     onVerDetalle?: (equipo: Equipo) => void;
 }
 
@@ -14,13 +15,17 @@ export const EquipoCard: React.FC<EquipoCardProps> = ({
     equipo,
     onActualizarHorometro,
     onDarDeBaja,
+    onRestaurar,
     onVerDetalle,
 }) => {
-    const estadoVisual = equipo.estado === 'Mantenimiento' || equipo.color_semaforo === 'ROJO'
-        ? { label: 'Urgente', className: 'bg-red-100 text-red-700 border-red-200' }
-        : equipo.color_semaforo === 'AMARILLO'
-            ? { label: 'Próximo', className: 'bg-amber-100 text-amber-700 border-amber-200' }
-            : { label: 'Operativo', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+    const estaDeshabilitada = equipo.estado === 'Deshabilitada' || Boolean(equipo.is_deleted);
+    const estadoVisual = estaDeshabilitada
+        ? { label: 'Deshabilitada', className: 'bg-slate-100 text-slate-600 border-slate-300' }
+        : equipo.estado === 'Mantenimiento' || equipo.color_semaforo === 'ROJO'
+            ? { label: 'Urgente', className: 'bg-red-100 text-red-700 border-red-200' }
+            : equipo.color_semaforo === 'AMARILLO'
+                ? { label: 'Próximo', className: 'bg-amber-100 text-amber-700 border-amber-200' }
+                : { label: 'Operativo', className: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
 
     const silueta = getEquipmentSilhouette(equipo);
     const fotoGuardada = equipo.foto_url?.trim() || '';
@@ -93,7 +98,7 @@ export const EquipoCard: React.FC<EquipoCardProps> = ({
 
             {/* Botones de acciones */}
             <div className="grid grid-cols-2 gap-2">
-                {onActualizarHorometro && (
+                {onActualizarHorometro && !estaDeshabilitada && (
                     <button
                         type="button"
                         onClick={(event) => {
@@ -106,7 +111,7 @@ export const EquipoCard: React.FC<EquipoCardProps> = ({
                     </button>
                 )}
 
-                {onDarDeBaja && equipo.estado !== 'Deshabilitada' && (
+                {onDarDeBaja && !estaDeshabilitada && (
                     <button
                         type="button"
                         onClick={(event) => {
@@ -116,6 +121,19 @@ export const EquipoCard: React.FC<EquipoCardProps> = ({
                         className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition-colors hover:bg-red-100"
                     >
                         Dar de baja
+                    </button>
+                )}
+
+                {onRestaurar && estaDeshabilitada && (
+                    <button
+                        type="button"
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            onRestaurar(equipo);
+                        }}
+                        className="col-span-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+                    >
+                        Restaurar maquinaria
                     </button>
                 )}
             </div>

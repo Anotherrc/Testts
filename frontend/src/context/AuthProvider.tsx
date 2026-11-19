@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { apiClient } from '../api/axios'; // Ajusta la ruta a axios.ts según tu proyecto
 
@@ -10,30 +10,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const checkAuth = useCallback(async () => {
+    useEffect(() => {
+        let activo = true;
         const token = localStorage.getItem('access_token');
 
         if (!token) {
-            await Promise.resolve();
-            setIsLoading(false);
-            return;
+            Promise.resolve().then(() => {
+                if (activo) setIsLoading(false);
+            });
+            return () => {
+                activo = false;
+            };
         }
 
-        try {
-            const res = await apiClient.get<User>('/perfil/');
-            setUser(res.data);
-        } catch {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            setUser(null);
-        } finally {
-            setIsLoading(false);
-        }
+        apiClient
+            .get<User>('/perfil/')
+            .then((res) => {
+                if (activo) setUser(res.data);
+            })
+            .catch(() => {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                if (activo) setUser(null);
+            })
+            .finally(() => {
+                if (activo) setIsLoading(false);
+            });
+
+        return () => {
+            activo = false;
+        };
     }, []);
-
-    useEffect(() => {
-        checkAuth();
-    }, [checkAuth]);
 
     const login = async (credentials: { username: string; password: string }) => {
         const { data: tokenData } = await apiClient.post('/login/', credentials);

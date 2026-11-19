@@ -2,8 +2,7 @@ import axios from 'axios';
 
 // La URL de tu backend en Django (idealmente esto va en un archivo .env como VITE_API_URL)
 const API_URL = (
-    import.meta.env.VITE_API_URL ??
-    (import.meta.env.DEV ? 'http://localhost:8000/api' : '/api')
+    import.meta.env.VITE_API_URL ?? '/api'
 ).replace(/\/+$/, '');
 
 export const apiClient = axios.create({

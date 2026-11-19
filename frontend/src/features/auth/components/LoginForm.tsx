@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
@@ -23,8 +24,8 @@ export const LoginForm: React.FC = () => {
             // Usamos 'username' porque es el campo por defecto que espera Django REST Framework
             await login({ username: email, password: password });
             navigate('/dashboard');
-        } catch (err: any) {
-            if (err.response?.status === 401) {
+        } catch (err: unknown) {
+            if (isAxiosError(err) && err.response?.status === 401) {
                 setError('Correo o contraseña incorrectos.');
             } else {
                 setError('Error al conectar con el servidor. Intente más tarde.');

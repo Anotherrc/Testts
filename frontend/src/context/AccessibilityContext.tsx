@@ -1,17 +1,7 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-
-type ThemeMode = 'light' | 'dark';
-
-interface AccessibilityContextValue {
-    theme: ThemeMode;
-    isDark: boolean;
-    setTheme: (theme: ThemeMode) => void;
-    toggleTheme: () => void;
-}
+import React, { useEffect, useMemo, useState } from 'react';
+import { AccessibilityContext, type AccessibilityContextValue, type ThemeMode } from './useAccessibility';
 
 const ACCESSIBILITY_THEME_KEY = 'vilas-tema-accesibilidad';
-
-const AccessibilityContext = createContext<AccessibilityContextValue | undefined>(undefined);
 
 function getInitialTheme(): ThemeMode {
     if (typeof window === 'undefined') return 'light';
@@ -37,13 +27,3 @@ export const AccessibilityProvider: React.FC<React.PropsWithChildren> = ({ child
 
     return <AccessibilityContext.Provider value={value}>{children}</AccessibilityContext.Provider>;
 };
-
-export function useAccessibility(): AccessibilityContextValue {
-    const context = useContext(AccessibilityContext);
-
-    if (!context) {
-        throw new Error('useAccessibility debe utilizarse dentro de AccessibilityProvider');
-    }
-
-    return context;
-}

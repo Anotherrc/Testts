@@ -3,9 +3,11 @@ import type { Equipo } from '../types';
 import type { HistorialIntervencion } from '../types';
 
 export const equiposService = {
-    // Obtener todas las maquinarias
-    getAll: async (): Promise<Equipo[]> => {
-        const response = await apiClient.get<Equipo[]>('/equipos/');
+    // Obtener todas las maquinarias (opcionalmente incluyendo deshabilitadas)
+    getAll: async (incluirDeshabilitados = false): Promise<Equipo[]> => {
+        const response = await apiClient.get<Equipo[]>('/equipos/', {
+            params: incluirDeshabilitados ? { incluir_deshabilitados: 'true' } : undefined,
+        });
         return response.data;
     },
 
@@ -53,5 +55,15 @@ export const equiposService = {
     },
     darDeBaja: async (id: number): Promise<void> => {
         await apiClient.delete(`/equipos/${id}/`);
+    },
+    restaurar: async (id: number): Promise<Equipo> => {
+        const response = await apiClient.post<Equipo>(`/equipos/${id}/restaurar/`);
+        return response.data;
+    },
+    finalizarMantenimiento: async (id: number, comentario?: string): Promise<{ equipo: Equipo }> => {
+        const response = await apiClient.post<{ equipo: Equipo }>(`/equipos/${id}/finalizar-mantenimiento/`, {
+            comentario,
+        });
+        return response.data;
     },
 };

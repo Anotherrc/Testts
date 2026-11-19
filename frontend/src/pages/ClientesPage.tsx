@@ -28,22 +28,27 @@ export const ClientesPage: React.FC = () => {
   const [marcaAsignacion, setMarcaAsignacion] = useState('TODAS');
   const [modeloAsignacion, setModeloAsignacion] = useState('TODOS');
 
-  const cargarDatos = async () => {
-    setError('');
-    setCargando(true);
-    try {
-      const [maquinas, lista] = await Promise.all([equiposService.getAll(), operacionesService.clientes.listar()]);
-      setEquipos(maquinas);
-      setClientes(lista);
-      setAsignaciones(maquinas.reduce<Asignaciones>((acc, equipo) => {
-        if (equipo.cliente_empresa) acc[equipo.id] = equipo.cliente_empresa;
-        return acc;
-      }, {}));
-    } catch {
-      setError('No se pudieron cargar los datos desde Django. Verifica la conexión y tus permisos.');
-    } finally { setCargando(false); }
-  };
-  useEffect(() => { void cargarDatos(); }, []);
+  useEffect(() => {
+    let activo = true;
+    Promise.all([equiposService.getAll(), operacionesService.clientes.listar()])
+      .then(([maquinas, lista]) => {
+        if (!activo) return;
+        setError('');
+        setEquipos(maquinas);
+        setClientes(lista);
+        setAsignaciones(maquinas.reduce<Asignaciones>((acc, equipo) => {
+          if (equipo.cliente_empresa) acc[equipo.id] = equipo.cliente_empresa;
+          return acc;
+        }, {}));
+      })
+      .catch(() => {
+        if (activo) setError('No se pudieron cargar los datos del servidor. Verifica la conexión y tus permisos.');
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+    return () => { activo = false; };
+  }, []);
   const cambiarAsignacion = async (equipo: Equipo, clienteId: number | null) => {
     setError('');
     try {

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { equiposService } from '../features/equipos/api/equiposService';
 import type { Equipo } from '../features/equipos/types';
-import { useAccessibility } from '../context/AccessibilityContext';
+import { useAccessibility } from '../context/useAccessibility';
 import { useAuth } from '../features/auth/hooks/useAuth';
 
 const numero = new Intl.NumberFormat('es-CL', { maximumFractionDigits: 1 });
@@ -31,8 +31,26 @@ export const DashboardPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        void cargarEquipos();
-    }, [cargarEquipos]);
+        let activo = true;
+        equiposService.getAll()
+            .then((datos) => {
+                if (!activo) return;
+                setError(false);
+                setEquipos(datos);
+                setConsulta(new Date());
+            })
+            .catch(() => {
+                if (!activo) return;
+                setError(true);
+                setConsulta(null);
+            })
+            .finally(() => {
+                if (activo) setCargando(false);
+            });
+        return () => {
+            activo = false;
+        };
+    }, []);
 
     const resumen = useMemo(() => {
         const alertas = equipos.filter((e) => e.color_semaforo === 'ROJO');

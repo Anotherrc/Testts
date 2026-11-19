@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../features/auth/hooks/useAuth';
 import { equiposService } from '../../features/equipos/api/equiposService';
 import type { Equipo } from '../../features/equipos/types';
-import { useAccessibility } from '../../context/AccessibilityContext';
+import { useAccessibility } from '../../context/useAccessibility';
 
 export const Navbar: React.FC = () => {
     const navigate = useNavigate();

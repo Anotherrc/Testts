@@ -21,7 +21,7 @@ export const RegisterPage: React.FC = () => {
     const tieneMayuscula = /[A-Z]/.test(password);
     const tieneMinuscula = /[a-z]/.test(password);
     const tieneNumero = /\d/.test(password);
-    const tieneEspecial = /[-!@#$%^&*()_+=[\]{};':"\\|,.<>\/?]/.test(password);
+    const tieneEspecial = /[-!@#$%^&*()_+=[\]{};':"\\|,.<>/?]/.test(password);
 
     const esContrasenaValida =
         tieneMinimo12 && tieneMayuscula && tieneMinuscula && tieneNumero && tieneEspecial;

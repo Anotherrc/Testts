@@ -11,6 +11,13 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env*
 
+# Local database & media
+data/
+*.db
+*.db-wal
+*.db-shm
+media/
+
 # Local tooling
 .vscode/
 .idea/

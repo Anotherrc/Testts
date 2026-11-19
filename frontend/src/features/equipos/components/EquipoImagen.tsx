@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { Equipo } from '../types';
 import { getEquipmentSilhouette } from '../../../utils/equipmentSilhouettes';
 import { apiClient } from '../../../api/axios';
@@ -39,12 +39,9 @@ export const EquipoImagen: React.FC<EquipoImagenProps> = ({
 }) => {
   const silueta = getEquipmentSilhouette(equipo);
   const foto = fotoSubida(equipo) || equipo.foto_url?.trim() || '';
-  const [fotoFallida, setFotoFallida] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  useEffect(() => {
-    setFotoFallida(false);
-  }, [foto, silueta]);
-
+  const fotoFallida = Boolean(foto) && failedSrc === foto;
   const esReferencial = !foto || fotoFallida;
   // Las siluetas WEBP tienen un fondo #FDFDFD y un tono azul/verde oscuro.
   // Convertimos ambos tonos visualmente a blanco puro y negro sin alterar
@@ -68,7 +65,7 @@ export const EquipoImagen: React.FC<EquipoImagenProps> = ({
       className={`${className} block ${esReferencial ? 'object-contain' : 'object-cover'}`}
       style={estiloReferencial}
       onError={() => {
-        if (!esReferencial) setFotoFallida(true);
+        if (!esReferencial && foto) setFailedSrc(foto);
       }}
     />
   );

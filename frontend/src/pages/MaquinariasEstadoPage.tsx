@@ -34,9 +34,14 @@ export const MaquinariasEstadoPage: React.FC = () => {
     const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
-        setCargando(true);
-        equiposService.getAll()
+        let activo = true;
+        Promise.resolve()
+            .then(() => {
+                if (activo) setCargando(true);
+                return equiposService.getAll();
+            })
             .then((datos) => {
+                if (!activo) return;
                 const filtrados = datos.filter((equipo) => {
                     if (tipoValido === 'urgentes') return equipo.color_semaforo === 'ROJO';
                     if (tipoValido === 'taller') return equipo.estado === 'Mantenimiento';
@@ -45,7 +50,12 @@ export const MaquinariasEstadoPage: React.FC = () => {
                 setEquipos(filtrados);
                 setSeleccionado(filtrados[0] || null);
             })
-            .finally(() => setCargando(false));
+            .finally(() => {
+                if (activo) setCargando(false);
+            });
+        return () => {
+            activo = false;
+        };
     }, [tipoValido]);
 
     const descripcionLectura = useMemo(() => {

@@ -1,182 +1,122 @@
-# Vilas Motor — Sistema de gestión de flota y mantenimiento
+# Vilas Motor — Sistema de Gestión de Flota y Mantenimiento
 
-Aplicación web para registrar maquinarias, controlar horómetros y kilometrajes, gestionar mantenciones, clientes y arriendos, visualizar ubicaciones GPS y administrar usuarios con permisos por rol.
+Aplicación web full-stack para administrar el catálogo de maquinarias (`394` equipos iniciales), controlar horómetros y kilometrajes, gestionar órdenes de mantención preventiva/correctiva, controlar bodega de insumos, administrar clientes y arriendos, visualizar ubicaciones GPS referenciales y gestionar roles/permisos (RBAC).
 
-> **Alcance:** proyecto de desarrollo y demostración. Las ubicaciones del catálogo son referenciales; no se debe presentar el sistema como una integración activa con dispositivos Teltonika. El envío real de correos requiere configurar SMTP.
+> **Alcance del modo demostración:** Las coordenadas base de los equipos sin registro manual son referenciales (Arica–Iquique–Tarapacá) para visualización cartográfica; no representa telemetría en vivo de dispositivos Teltonika. El envío real de correos de recuperación requiere configurar un servidor SMTP externo.
 
-## Tecnologías
+---
 
-| Componente | Tecnología |
+## 1. Stack Tecnológico Actual
+
+| Capa | Tecnología |
 | --- | --- |
-| Backend | Python, Django 6.1.2, Django REST Framework, Simple JWT |
-| Base de datos local | SQLite |
-| Frontend | React 19, TypeScript, Vite 8 y Tailwind CSS 4 |
-| Autenticación y acceso | JWT, grupos de Django y permisos de Crear / Editar / Eliminar / Consultar |
+| **Runtime & Servidor** | Node.js `v22+`, TypeScript (`tsx`), Express 5 |
+| **Base de datos** | SQLite (`node:sqlite` nativo en modo WAL, llaves foráneas `ON`, esquema normalizado 3FN en `data/vilas_motor.db`) |
+| **Seguridad** | `scrypt` + salt aleatorio (`timingSafeEqual`), JWT (`access` + `refresh`), RBAC por rol/permiso, `helmet`, `cors`, `express-rate-limit`, `zod`, `audit_logs` |
+| **Frontend** | React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router 7, Axios, Leaflet (`react-leaflet`) |
+| **Pruebas** | `node:test` (unitarias e integración HTTP/SQLite) + benchmark de carga concurrente + verificación visual Playwright |
 
-## Requisitos previos
+---
 
-- **Python 3.12, 3.13 o 3.14**, compatible con la versión de Django declarada en `backend/requirements.txt`.
-- **Node.js 22.12 o posterior**, junto con npm (o Node.js 20.19 o posterior, según la compatibilidad de Vite 8).
-- Git, si se va a clonar o actualizar el repositorio.
+## 2. Requisitos Previos
 
-Verificar las herramientas en PowerShell:
+* **Node.js 22.12 o posterior** (incluye `npm` y soporte nativo `node:sqlite`).
+* **Sistema operativo:** Windows 10/11 (ejecutable `.bat` incluido), macOS o Linux.
 
-```powershell
-py --version
+Verificar versión instalada:
+
+```bash
 node --version
 npm --version
 ```
 
-## Estructura
+---
+
+## 3. Instalación y Ejecución Rápida
+
+### Opción A — Ejecución con un clic en Windows (`.bat`)
+1. Descarga o clona el repositorio.
+2. Haz doble clic en **`Iniciar_Vilas_Motor.bat`** en la raíz del proyecto.
+3. El script verifica Node.js/npm, instala dependencias en el primer inicio (`npm install`), levanta el servidor en el puerto `3000` y abre automáticamente `http://localhost:3000` en el navegador.
+
+### Opción B — Terminal (Windows / macOS / Linux)
+1. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+2. (Opcional) Copiar `.env.example` a `.env` y definir variables personalizadas (`JWT_SECRET`, `PORT`, `DB_PATH`, `CORS_ORIGINS`).
+3. Iniciar en modo desarrollo (Express + Vite integrados en el puerto `3000`):
+   ```bash
+   npm run dev
+   ```
+4. Abrir `http://localhost:3000` en el navegador.
+
+### Compilación y Producción
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 4. Credenciales de Demostración
+
+| Rol | Correo / Usuario | Contraseña | Alcance principal |
+| --- | --- | --- | --- |
+| **ADMIN** (Superusuario) | `admin@vilasmotor.cl` | `VilasAdmin2026!` | Control total, usuarios, roles, permisos, auditoría y BD |
+| **PLANIFICACION** | `planificacion@vilasmotor.cl` | `VilasPlan2026!` | Gestión de maquinarias, clientes, insumos y mantenciones |
+| **TECNICO** | `tecnico@vilasmotor.cl` | `VilasTec2026!` | Consulta de maquinarias, ejecución/cierre de mantenciones y GPS |
+
+---
+
+## 5. Scripts Disponibles
+
+| Comando | Descripción |
+| --- | --- |
+| `npm run dev` | Inicia Express + Vite en `http://localhost:3000` |
+| `npm run build` | Compila TypeScript (`frontend/tsconfig.app.json`) y genera bundle de producción en `frontend/dist` |
+| `npm start` | Inicia el servidor en modo producción (`cross-env NODE_ENV=production`) |
+| `npm run lint` | Ejecuta ESLint sobre `frontend/src` |
+| `npm test` | Ejecuta las pruebas unitarias y de integración API + SQLite (`server/tests/*.test.ts`) |
+| `npm run test:load` | Ejecuta la prueba de carga y estrés concurrente (`150` solicitudes concurrentes) |
+
+---
+
+## 6. Estructura del Proyecto
 
 ```text
-VilasMotorsProject/
-├── backend/
-│   ├── backend/              # Configuración de Django
-│   ├── usuarios/              # Autenticación, roles y permisos
-│   ├── equipos/               # Equipos, horómetros, historial y catálogo demo
-│   ├── operaciones/           # Operaciones, clientes y mantenciones
-│   ├── manage.py
-│   └── requirements.txt
+.
+├── Iniciar_Vilas_Motor.bat         # Lanzador ejecutable para Windows
+├── package.json                    # Scripts y dependencias unificadas
+├── server.ts                       # Punto de entrada HTTP + Vite/static
+├── server/
+│   ├── app.ts                      # Fábrica Express (helmet, cors, JSON, /api)
+│   ├── auth.ts                     # scrypt, validación de contraseñas, JWT y RBAC
+│   ├── db.ts                       # Esquema SQLite 3FN (18 tablas, FKs, índices, WAL)
+│   ├── routes.ts                   # Endpoints REST + rate limit + zod + auditoría
+│   ├── store.ts                    # Hidratación, serialización y lógica de alertas
+│   ├── types.ts                    # Contratos TypeScript del dominio
+│   ├── data/equipos_prueba.json    # Catálogo semilla de 394 maquinarias
+│   └── tests/                      # Pruebas unitarias, integración y carga
 ├── frontend/
-│   ├── src/                  # Páginas, componentes, API y rutas
-│   ├── public/equipos/       # Imágenes y siluetas referenciales
-│   ├── package.json
-│   └── package-lock.json
-└── README.md
+│   ├── index.html
+│   └── src/
+│       ├── api/axios.ts            # Cliente HTTP con interceptor JWT y refresh
+│       ├── assets/global.css       # Estilos Tailwind + tema oscuro alto contraste
+│       ├── components/             # Layout (Navbar, Sidebar) y UI reutilizable
+│       ├── context/                # AuthContext y AccessibilityContext (tema oscuro)
+│       ├── features/               # Servicios API por módulo (admin, auth, equipos, operaciones)
+│       ├── pages/                  # Vistas del sistema
+│       └── routes/                 # Rutas protegidas por sesión, rol y permiso
+└── docs/                           # Documentación técnica, BD, pruebas, defensa e informe
 ```
 
-> Ejecutar los siguientes comandos desde la **raíz del repositorio**, es decir, la carpeta que contiene `backend` y `frontend`. No es necesario que esa carpeta tenga un nombre específico.
+---
 
-## 1. Instalar y preparar el backend (Windows / PowerShell)
+## 7. Documentación Técnica Complementaria
 
-**Primera instalación:**
-
-```powershell
-cd backend
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe manage.py migrate
-.\.venv\Scripts\python.exe manage.py inicializar_permisos_roles
-.\.venv\Scripts\python.exe manage.py createsuperuser
-```
-
-- `migrate` crea o actualiza las tablas de la base SQLite local.
-- `inicializar_permisos_roles` crea los grupos `ADMIN`, `PLANIFICACION` y `TECNICO` con una configuración inicial **solo si el grupo todavía no tiene permisos**. No sobrescribe los permisos previamente guardados desde la aplicación.
-- `createsuperuser` crea una cuenta administrativa. Para usar el inicio de sesión del frontend, se recomienda completar el **nombre de usuario y correo** con la misma dirección de correo. La contraseña debe cumplir las reglas de Django (mínimo 12 caracteres).
-- La base de datos `backend/db.sqlite3` es local y **no está incluida** en Git. Cada instalación comienza con su propia base hasta que se importen datos de demostración.
-
-**Verificar e iniciar el backend:**
-
-```powershell
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py runserver
-```
-
-API: `http://127.0.0.1:8000/api/`  
-Administrador de Django: `http://127.0.0.1:8000/admin/`
-
-Dejar abierta esta terminal mientras se utiliza la aplicación.
-
-## 2. Instalar e iniciar el frontend (otra terminal)
-
-Abrir una **segunda terminal** en la raíz del repositorio:
-
-```powershell
-cd frontend
-npm ci
-npm run dev
-```
-
-Abrir `http://localhost:5173/` en el navegador. Iniciar sesión con el superusuario creado en el paso anterior.
-
-Si todavía no se tiene acceso a npm o falla `npm ci`, comprobar primero la versión de Node.js y que exista `frontend/package-lock.json`. No es necesario copiar `node_modules` desde otro equipo.
-
-## 3. Cargar las 394 maquinarias de demostración (opcional)
-
-Desde otra terminal en `backend`, con las migraciones ya ejecutadas:
-
-```powershell
-.\.venv\Scripts\python.exe manage.py importar_equipos_prueba
-```
-
-El comando carga las **394 filas de catálogo demo** del archivo `backend/equipos/data/equipos_prueba.json`, usando códigos internos con prefijo `XLS-`. La versión corregida **crea solo los registros faltantes y omite los existentes**, sin reemplazar horómetros, estados ni asignaciones que ya fueron modificados. No es necesario volver a ejecutarlo si la base ya tiene las 394 maquinarias.
-
-Para verificar la cantidad:
-
-```powershell
-.\.venv\Scripts\python.exe manage.py shell -c "from equipos.models import Equipo; print('Total de equipos:', Equipo.objects.count())"
-```
-
-**Precaución:** estos datos no equivalen a una flota validada con horómetros reales o GPS en vivo. El comando `generar_mantenciones_demo` también existe, pero modifica información de prueba de los equipos; úsalo únicamente en una base nueva destinada a demostraciones y con respaldo previo.
-
-## 4. Usuarios y permisos
-
-- El usuario creado con `createsuperuser` puede administrar usuarios y roles.
-- Los demás usuarios se crean desde **Módulo Administrador → Usuarios**, no desde un registro público.
-- Los permisos de `PLANIFICACION` y `TECNICO` se configuran en **Módulo Administrador → Permisos de roles** y se aplican en el backend para los módulos habilitados.
-- Los permisos de usuarios y roles quedan restringidos a la administración; los permisos de maquinarias, mantenciones y consulta GPS se verifican mediante las operaciones autorizadas.
-
-| Rol | Configuración inicial de ejemplo |
-| --- | --- |
-| `ADMIN` | Administración completa; el superusuario posee permisos globales |
-| `PLANIFICACION` | Crear, editar, eliminar y consultar maquinarias y mantenciones; consultar GPS |
-| `TECNICO` | Consultar maquinarias; editar/consultar mantenciones; consultar GPS |
-
-La configuración puede modificarse desde la interfaz por un administrador autorizado. **Los permisos finales dependen de lo que quede guardado en la base de datos**, no solamente del nombre del rol.
-
-## 5. Recuperación de contraseña
-
-Desde la pantalla de login, seleccionar **¿Olvidaste tu contraseña?**. En desarrollo, la configuración predeterminada de Django imprime el correo y el enlace de recuperación en la terminal del backend; **no se envía automáticamente a un buzón real**. El enlace caduca después de una hora.
-
-Variables opcionales del servidor (establecerlas antes de ejecutar Django): `FRONTEND_BASE_URL`, `DJANGO_FROM_EMAIL`, `DJANGO_SMTP_HOST`, `DJANGO_SMTP_PORT`, `DJANGO_SMTP_USER`, `DJANGO_SMTP_PASSWORD` y `DJANGO_SMTP_TLS`. Nunca incluir contraseñas SMTP ni claves secretas en Git.
-
-## 6. Pruebas y verificación
-
-**Backend** — ejecutar desde `backend`:
-
-```powershell
-.\.venv\Scripts\python.exe manage.py check
-.\.venv\Scripts\python.exe manage.py test -v 2
-```
-
-Las pruebas utilizan una base de datos de prueba separada de la base SQLite local del desarrollo.
-
-**Frontend** — ejecutar desde `frontend`:
-
-```powershell
-npm run build
-```
-
-Si se necesita revisar el estilo y las reglas del frontend:
-
-```powershell
-npm run lint
-```
-
-Validaciones manuales recomendadas: iniciar sesión con distintos roles, comprobar restricciones de permisos; crear un equipo, modificar horómetro y rechazar lecturas inferiores; crear un cliente y asignar una maquinaria; gestionar una mantención y sus insumos; revisar el mapa y comprobar la recuperación de contraseña.
-
-## 7. Uso diario (instalación ya preparada)
-
-No hay que reinstalar dependencias ni volver a importar las maquinarias cada vez. Basta con levantar dos terminales:
-
-**Terminal 1:**
-
-```powershell
-cd backend
-.\.venv\Scripts\python.exe manage.py runserver
-```
-
-**Terminal 2:**
-
-```powershell
-cd frontend
-npm run dev
-```
-
-## 8. Seguridad y límites del entorno de desarrollo
-
-- `backend/db.sqlite3`, `.venv`, `frontend/node_modules`, archivos `.env`, fotos subidas a `backend/media` y claves personales **no deben subirse al repositorio**.
-- El servidor `runserver`, SQLite y el servidor de desarrollo Vite se usan para **desarrollo y demostraciones**, no constituyen un despliegue empresarial de producción.
-- El GPS del catálogo demo es referencial: la integración real con Teltonika, la recepción de telemetría, la entrega de correo SMTP y el despliegue seguro requieren configuración y pruebas adicionales.
-- Para despliegues fuera de localhost configurar `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, CORS, HTTPS y las demás variables pertinentes en el entorno del servidor, nunca en archivos versionados con secretos.
+* [`docs/ARQUITECTURA_Y_BD.md`](docs/ARQUITECTURA_Y_BD.md): Arquitectura, modelo relacional 3FN, diagrama DER, diccionario de datos y API.
+* [`docs/PLAN_Y_RESULTADOS_PRUEBAS.md`](docs/PLAN_Y_RESULTADOS_PRUEBAS.md): Plan de pruebas, protocolo ejecutado, resultados, comparación esperado vs. obtenido y recomendaciones.
+* [`docs/GUIA_DEFENSA.md`](docs/GUIA_DEFENSA.md): Preguntas técnicas frecuentes y sustentación para defensa del proyecto.
+* [`docs/INFORME_FINAL_BASE.md`](docs/INFORME_FINAL_BASE.md): Borrador completo estructurado del informe final profesional.
+* [`CONTRIBUTING.md`](CONTRIBUTING.md) y [`CHANGELOG.md`](CHANGELOG.md): Normas de colaboración y registro de cambios.

@@ -194,15 +194,14 @@ export const GeolocalizacionPage: React.FC = () => {
     localStorage.setItem(zoneStorage, JSON.stringify(zonas));
   }, [zonas]);
 
-  useEffect(() => {
-    if (seleccionado) {
-      setGpsForm({
-        latitud: esUbicacionManual(seleccionado) ? String(seleccionado.latitud) : '',
-        longitud: esUbicacionManual(seleccionado) ? String(seleccionado.longitud) : '',
-        encendido_gps: seleccionado.encendido_gps,
-      });
-    }
-  }, [seleccionado]);
+  const seleccionarEquipo = (equipo: Equipo) => {
+    setSeleccionado(equipo);
+    setGpsForm({
+      latitud: esUbicacionManual(equipo) ? String(equipo.latitud) : '',
+      longitud: esUbicacionManual(equipo) ? String(equipo.longitud) : '',
+      encendido_gps: equipo.encendido_gps,
+    });
+  };
 
   const categorias = Array.from(new Set(equipos.map((e) => e.categoria || 'Sin categoría'))).sort();
   const subcategorias = Array.from(new Set(equipos
@@ -289,7 +288,7 @@ export const GeolocalizacionPage: React.FC = () => {
         encendido_gps: gpsForm.encendido_gps,
       });
       setEquipos((actuales) => actuales.map((e) => e.id === actualizado.id ? actualizado : e));
-      setSeleccionado(actualizado);
+      seleccionarEquipo(actualizado);
       setEditandoGps(false);
       setErrorGps('');
     } catch {
@@ -464,7 +463,7 @@ export const GeolocalizacionPage: React.FC = () => {
                   key={equipo.id}
                   position={posicion}
                   icon={markerIcon(equipo.encendido_gps, manual)}
-                  eventHandlers={{ click: () => setSeleccionado(equipo) }}
+                  eventHandlers={{ click: () => seleccionarEquipo(equipo) }}
                 >
                   <Popup>
                     <b>{equipo.codigo}</b>

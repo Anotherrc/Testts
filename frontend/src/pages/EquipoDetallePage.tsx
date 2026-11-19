@@ -26,12 +26,13 @@ export const EquipoDetallePage: React.FC = () => {
   const [errorEstado, setErrorEstado] = useState('');
 
   useEffect(() => {
-    equiposService.getAll().then((data) => {
+    equiposService.getAll(true).then((data) => {
       setEquipos(data);
-      setEquipo(data.find((item) => item.id === Number(id)) || null);
-      setFotoUrl(data.find((item) => item.id === Number(id))?.foto_url || '');
-      setLecturaActual(String(data.find((item) => item.id === Number(id))?.horometro_actual ?? ''));
-      setProximaMeta(String(data.find((item) => item.id === Number(id))?.meta_proxima_mant ?? ''));
+      const found = data.find((item) => item.id === Number(id)) || null;
+      setEquipo(found);
+      setFotoUrl(found?.foto_url || '');
+      setLecturaActual(String(found?.horometro_actual ?? ''));
+      setProximaMeta(String(found?.meta_proxima_mant ?? ''));
     }).catch(() => setEquipos([]));
     equiposService.getMantenciones().then((data) => setHistorial(data.filter((item) => item.equipo === Number(id)))).catch(() => setHistorial([]));
   }, [id]);
@@ -81,10 +82,12 @@ export const EquipoDetallePage: React.FC = () => {
     setErrorEstado('');
     try {
       const actualizado = estado === 'Deshabilitada'
-        ? await equiposService.darDeBaja(equipo.id).then(() => ({ ...equipo, estado, is_deleted: true }))
-        : await equiposService.actualizar(equipo.id, estado === 'Disponible'
-            ? { estado, cliente_empresa: null, cliente_asignado: null }
-            : { estado });
+        ? await equiposService.darDeBaja(equipo.id).then(() => ({ ...equipo, estado, is_deleted: true, color_semaforo: 'GRIS' as const }))
+        : equipo.is_deleted && estado === 'Disponible'
+          ? await equiposService.restaurar(equipo.id)
+          : await equiposService.actualizar(equipo.id, estado === 'Disponible'
+              ? { estado, cliente_empresa: null, cliente_asignado: null }
+              : { estado });
       setEquipo(actualizado);
       setEquipos((actuales) => actuales.map((item) => item.id === actualizado.id ? actualizado : item));
     } catch (error: unknown) {

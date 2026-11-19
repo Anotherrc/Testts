@@ -22,8 +22,10 @@ export const operacionesService = {
   },
   ordenes: {
     listar: async () => (await apiClient.get<Orden[]>('/ordenes/')).data,
-    crear: async (data: {equipoId: number; fecha: string; comentario: string; mecanicos: string[]; consumos: { insumo: number; cantidad: number }[]}) =>
+    crear: async (data: {equipoId: number; fecha: string; comentario: string; mecanicos: string[]; consumos: { insumo: number; cantidad: number }[]; estado?: 'En curso' | 'Programada'}) =>
       (await apiClient.post<Orden>('/ordenes/', data)).data,
+    iniciar: async (id: number) =>
+      (await apiClient.post<Orden>(`/ordenes/${id}/iniciar/`)).data,
     finalizar: async (id: number) =>
       (await apiClient.post<Orden>(`/ordenes/${id}/finalizar/`)).data,
   },
