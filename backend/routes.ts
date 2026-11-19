@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -91,7 +92,9 @@ function recordAudit(
   }
 }
 
-const mediaEquiposDir = path.resolve(process.cwd(), 'media', 'equipos');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const mediaEquiposDir = path.resolve(__dirname, 'media', 'equipos');
 fs.mkdirSync(mediaEquiposDir, { recursive: true });
 
 const upload = multer({

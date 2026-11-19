@@ -8,8 +8,8 @@
     "build": "tsc -p frontend/tsconfig.app.json && vite build frontend",
     "lint": "eslint --config frontend/eslint.config.js frontend/src",
     "start": "cross-env NODE_ENV=production tsx server.ts",
-    "test": "tsx --test server/tests/*.test.ts",
-    "test:load": "tsx server/tests/load.benchmark.ts"
+    "test": "tsx --test backend/tests/*.test.ts",
+    "test:load": "tsx backend/tests/load.benchmark.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

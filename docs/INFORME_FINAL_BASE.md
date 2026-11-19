@@ -34,7 +34,7 @@ El sistema implementado unifica un backend REST en **Node.js + Express 5 + SQLit
 
 ## 4. Arquitectura y Base de Datos (3FN)
 *(Ver detalle completo y diagramas en [`docs/ARQUITECTURA_Y_BD.md`](ARQUITECTURA_Y_BD.md)).*
-* Base de datos **SQLite en modo WAL** (`data/vilas_motor.db`) con `PRAGMA foreign_keys = ON`.
+* Base de datos **SQLite en modo WAL** (`backend/data/vilas_motor.db`) con `PRAGMA foreign_keys = ON`.
 * **18 tablas normalizadas hasta 3FN** (incluyendo tablas maestras `categorias_equipo` y `subcategorias_equipo`, tablas puente `orden_mecanicos`, `orden_consumos`, `rol_permisos`, `usuario_roles`, y auditoría `audit_logs`) y **9 índices** de consulta.
 
 ## 5. Patrones de Seguridad Implementados

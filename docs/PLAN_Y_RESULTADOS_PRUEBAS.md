@@ -27,8 +27,8 @@ El plan cubre el 100% de los módulos operativos, controles de seguridad, casos 
 * **Fecha de ejecución:** 2026-11-19
 * **Entorno:** Node.js `v22.23.2`, Express 5 + `node:sqlite` (WAL), React 19 + Vite 8.
 * **Comandos ejecutados:**
-  1. `npm test` (`tsx --test server/tests/*.test.ts`)
-  2. `npm run test:load` (`tsx server/tests/load.benchmark.ts`)
+  1. `npm test` (`tsx --test backend/tests/*.test.ts`)
+  2. `npm run test:load` (`tsx backend/tests/load.benchmark.ts`)
   3. `npm run lint` (`eslint --config frontend/eslint.config.js frontend/src`)
   4. `npm run build` (`tsc -p frontend/tsconfig.app.json && vite build frontend`)
 
@@ -36,8 +36,8 @@ El plan cubre el 100% de los módulos operativos, controles de seguridad, casos 
 
 | Prueba | Resultado | Tiempo / Métrica | Estado |
 | --- | --- | --- | --- |
-| Pruebas unitarias (`server/tests/unit.test.ts`) | **5 / 5 aprobadas** | `~209 ms` | **APROBADO** |
-| Pruebas integración HTTP/SQLite (`server/tests/api.integration.test.ts`) | **5 / 5 aprobadas** | `~717 ms` | **APROBADO** |
+| Pruebas unitarias (`backend/tests/unit.test.ts`) | **5 / 5 aprobadas** | `~209 ms` | **APROBADO** |
+| Pruebas integración HTTP/SQLite (`backend/tests/api.integration.test.ts`) | **5 / 5 aprobadas** | `~717 ms` | **APROBADO** |
 | Total suite `npm test` | **10 / 10 aprobadas (0 fallos)** | `1920.9 ms` | **APROBADO** |
 | Benchmark carga (`npm run test:load`) | **150 / 150 HTTP 200 (0 errores)** | `445.7 ms` totales · `336.6 req/s` · `p50: 37.08 ms` · `p95: 294.39 ms` · `máx: 360.91 ms` | **APROBADO** |
 

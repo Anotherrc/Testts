@@ -9,8 +9,8 @@ flowchart LR
     U[Usuario / Navegador] -->|HTTPS/HTTP :3000| SEC[Helmet + CORS + Rate Limit]
     SEC -->|SPA React + Leaflet| FE[Frontend React 19 / Tailwind CSS 4]
     FE -->|Axios + Bearer JWT + Refresh| API[Express API Router /api/*]
-    API -->|Auth + RBAC + Zod + Audit| AUTH[Módulo Seguridad server/auth.ts]
-    API -->|Transacciones SQL| DB[(SQLite WAL 3FN data/vilas_motor.db)]
+    API -->|Auth + RBAC + Zod + Audit| AUTH[Módulo Seguridad backend/auth.ts]
+    API -->|Transacciones SQL| DB[(SQLite WAL 3FN backend/data/vilas_motor.db)]
 ```
 
 ---

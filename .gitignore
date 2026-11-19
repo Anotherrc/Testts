@@ -13,6 +13,9 @@ frontend/.env*
 
 # Local database & media
 data/
+backend/data/*.db
+backend/data/*.db-wal
+backend/data/*.db-shm
 *.db
 *.db-wal
 *.db-shm

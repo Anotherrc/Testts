@@ -1,8 +1,12 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { apiRouter } from './routes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function createApp() {
   const app = express();
@@ -12,6 +16,9 @@ export function createApp() {
     helmet({
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
       frameguard: false,
     })
   );
@@ -36,7 +43,7 @@ export function createApp() {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
 
-  app.use('/media', express.static(path.resolve(process.cwd(), 'media')));
+  app.use('/media', express.static(path.resolve(__dirname, 'media')));
 
   app.use('/api', apiRouter);
   app.use('/api', (_req, res) => {

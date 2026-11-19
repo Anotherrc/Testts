@@ -5,7 +5,7 @@ Material de respaldo con fundamentos técnicos directos del código implementado
 ---
 
 ### 1. ¿Cómo aseguraron la integridad y normalización de la base de datos?
-* **Motor y restricciones:** Se utiliza SQLite en modo `WAL` con `PRAGMA foreign_keys = ON` y restricciones `CHECK` / `UNIQUE` en `server/db.ts`.
+* **Motor y restricciones:** Se utiliza SQLite en modo `WAL` con `PRAGMA foreign_keys = ON` y restricciones `CHECK` / `UNIQUE` en `backend/db.ts`.
 * **Normalización hasta 3FN:**
   * **1FN:** Eliminamos arreglos o cadenas concatenadas en tablas principales; los mecánicos de una orden viven en `orden_mecanicos` y los insumos consumidos en `orden_consumos`.
   * **2FN:** Las tablas puente (`rol_permisos`, `usuario_roles`, `orden_consumos`) dependen íntegramente de sus claves compuestas.
@@ -17,7 +17,7 @@ Material de respaldo con fundamentos técnicos directos del código implementado
 ### 2. ¿Qué medidas de seguridad implementa la aplicación contra ataques comunes?
 * **Fuerza bruta:** `express-rate-limit` sobre `/api/login` y recuperación de contraseña + auditoría de intentos fallidos en `audit_logs`.
 * **Robo de contraseñas / Timing attacks:** `crypto.scryptSync` con salt aleatorio de 16 bytes por usuario y comparación en tiempo constante (`crypto.timingSafeEqual`).
-* **Inyección SQL:** Todas las consultas en `server/db.ts` usan *prepared statements* parametrizados (`?`); además existe una prueba automatizada específica que envía un payload `'; DROP TABLE equipos; --` y verifica integridad total.
+* **Inyección SQL:** Todas las consultas en `backend/db.ts` usan *prepared statements* parametrizados (`?`); además existe una prueba automatizada específica que envía un payload `'; DROP TABLE equipos; --` y verifica integridad total.
 * **Escalada de privilegios:** Verificación en servidor mediante `requireAuth`, `requireAdmin` y `requirePermission(...)`, impidiendo que un rol `TECNICO` o `PLANIFICACION` acceda a endpoints administrativos o elimine cuentas/equipos sin permiso.
 * **Subida maliciosa de archivos:** Validación real de *magic bytes* (`JPEG`, `PNG`, `WebP`) en el buffer y límite de `5 MB`, evitando confiar únicamente en la extensión del archivo.
 * **Cabeceras HTTP y secretos:** Middleware `helmet` y validación de `JWT_SECRET` (sin credenciales fijas en producción).

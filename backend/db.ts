@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 import type {
   ClienteRecord,
   EquipoRecord,
@@ -803,7 +807,7 @@ export function loadHydratedData(database: DatabaseSync) {
 }
 
 export function bootstrapDatabase(seed: SeedBundle, customDbPath?: string) {
-  const targetPath = customDbPath || process.env.DB_PATH || path.resolve(process.cwd(), 'data', 'vilas_motor.db');
+  const targetPath = customDbPath || process.env.DB_PATH || path.resolve(__dirname, 'data', 'vilas_motor.db');
   if (db) {
     try {
       db.close();

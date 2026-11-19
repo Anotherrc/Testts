@@ -140,8 +140,8 @@ const RecenterMap: React.FC<{ equipo: Equipo | null }> = ({ equipo }) => {
 const layers = {
   calles: {
     label: 'Calles',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; OpenStreetMap contributors',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri',
   },
   satelite: {
     label: 'Satélite',
@@ -421,7 +421,7 @@ export const GeolocalizacionPage: React.FC = () => {
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="relative isolate h-[520px] min-h-[520px] overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <MapContainer center={IQUIQUE} zoom={9} scrollWheelZoom={false} className="h-full w-full">
-            <TileLayer attribution={layers[tipoMapa].attribution} url={layers[tipoMapa].url} />
+            <TileLayer key={tipoMapa} attribution={layers[tipoMapa].attribution} url={layers[tipoMapa].url} />
             <RecenterMap equipo={seleccionado} />
 
             {zonas.map((zona) => (

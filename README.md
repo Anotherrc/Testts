@@ -11,7 +11,7 @@ Aplicación web full-stack para administrar el catálogo de maquinarias (`394` e
 | Capa | Tecnología |
 | --- | --- |
 | **Runtime & Servidor** | Node.js `v22+`, TypeScript (`tsx`), Express 5 |
-| **Base de datos** | SQLite (`node:sqlite` nativo en modo WAL, llaves foráneas `ON`, esquema normalizado 3FN en `data/vilas_motor.db`) |
+| **Base de datos** | SQLite (`node:sqlite` nativo en modo WAL, llaves foráneas `ON`, esquema normalizado 3FN en `backend/data/vilas_motor.db`) |
 | **Seguridad** | `scrypt` + salt aleatorio (`timingSafeEqual`), JWT (`access` + `refresh`), RBAC por rol/permiso, `helmet`, `cors`, `express-rate-limit`, `zod`, `audit_logs` |
 | **Frontend** | React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router 7, Axios, Leaflet (`react-leaflet`) |
 | **Pruebas** | `node:test` (unitarias e integración HTTP/SQLite) + benchmark de carga concurrente + verificación visual Playwright |
@@ -77,7 +77,7 @@ npm start
 | `npm run build` | Compila TypeScript (`frontend/tsconfig.app.json`) y genera bundle de producción en `frontend/dist` |
 | `npm start` | Inicia el servidor en modo producción (`cross-env NODE_ENV=production`) |
 | `npm run lint` | Ejecuta ESLint sobre `frontend/src` |
-| `npm test` | Ejecuta las pruebas unitarias y de integración API + SQLite (`server/tests/*.test.ts`) |
+| `npm test` | Ejecuta las pruebas unitarias y de integración API + SQLite (`backend/tests/*.test.ts`) |
 | `npm run test:load` | Ejecuta la prueba de carga y estrés concurrente (`150` solicitudes concurrentes) |
 
 ---
@@ -88,15 +88,16 @@ npm start
 .
 ├── Iniciar_Vilas_Motor.bat         # Lanzador ejecutable para Windows
 ├── package.json                    # Scripts y dependencias unificadas
-├── server.ts                       # Punto de entrada HTTP + Vite/static
-├── server/
+├── server.ts                       # Lanzador raíz que delega en backend/server.ts
+├── backend/
+│   ├── server.ts                   # Servidor HTTP Express + Vite/static
 │   ├── app.ts                      # Fábrica Express (helmet, cors, JSON, /api)
 │   ├── auth.ts                     # scrypt, validación de contraseñas, JWT y RBAC
 │   ├── db.ts                       # Esquema SQLite 3FN (18 tablas, FKs, índices, WAL)
 │   ├── routes.ts                   # Endpoints REST + rate limit + zod + auditoría
 │   ├── store.ts                    # Hidratación, serialización y lógica de alertas
 │   ├── types.ts                    # Contratos TypeScript del dominio
-│   ├── data/equipos_prueba.json    # Catálogo semilla de 394 maquinarias
+│   ├── data/equipos_prueba.json    # Catálogo semilla de 394 maquinarias (y vilas_motor.db)
 │   └── tests/                      # Pruebas unitarias, integración y carga
 ├── frontend/
 │   ├── index.html
